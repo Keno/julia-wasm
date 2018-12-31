@@ -20,7 +20,7 @@ source ~/emsdk/emsdk_env.sh
 ./rebuild_js.sh
 # Use this to start a web server to serve the website
 # Restart it when it crashes
-emrun --no-browser --port 8888 website/ &
+emrun --no_browser --port 8888 website/repl.htm &
 ```
 At the moment `Firefox Developer Edition` seems to have the most complete
 wasm support and seems to be the fastest, so I'd recommend trying that.
