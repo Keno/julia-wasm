@@ -7,6 +7,7 @@ make O=build-wasm configure
 cat > build-native/Make.user <<EOF
 DISABLE_LIBUV := 1
 JULIA_THREADS := 0
+ARCH=i686
 EOF
 cat > build-wasm/Make.user <<EOF
 override CC=emcc
