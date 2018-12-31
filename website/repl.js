@@ -698,6 +698,10 @@ var Module = {
   },
   postRun: [function () {
     Module._jl_initialize();
+    input = "Base.load_InteractiveUtils()"
+    ptr = Module._malloc(input.length + 1);
+    Module.stringToUTF8(input, ptr, input.length + 1);
+    Module._jl_eval_string(ptr);
     enable_prompt();
   }]
 };
