@@ -1,4 +1,5 @@
 #!/bin/bash
+export DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 git clone https://github.com/JuliaLang/julia julia
 cd julia
 git checkout kf/wasm3
@@ -22,7 +23,7 @@ override USE_SYSTEM_LAPACK=1
 override USE_SYSTEM_LIBM=1
 override USE_SYSTEM_DSFMT=1
 override USE_SYSTEM_SUITESPARSE=1
-override LLVM_CONFIG_HOST=/home/keno/julia/usr/tools/llvm-config
+override LLVM_CONFIG_HOST=${DIR}/julia/build-native/usr/tools/llvm-config
 override USE_CROSS_FLISP=1
 override DISABLE_LIBUV=1
 override JULIA_THREADS=0
