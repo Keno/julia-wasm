@@ -9,6 +9,8 @@ cat > build-native/Make.user <<EOF
 DISABLE_LIBUV := 1
 JULIA_THREADS := 0
 ARCH=i686
+BUILD_ARCH_OVERRIDE := wasm
+UNAME_OVERRIDE := Emscripten
 EOF
 cat > build-wasm/Make.user <<EOF
 override CC=emcc
