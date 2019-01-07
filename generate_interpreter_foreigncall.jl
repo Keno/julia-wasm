@@ -22,6 +22,7 @@ JULIA_SRCS = [
     joinpath(LIBCLANG_INCLUDE, "rtutils.c"),
     joinpath(LIBCLANG_INCLUDE, "jl_antiuv.c"),
     joinpath(LIBCLANG_INCLUDE, "gf.c"),
+    joinpath(LIBCLANG_INCLUDE, "task.c"),
     joinpath(@__DIR__, "julia", "build-wasm", "usr", "include", "pcre2.h"),
     joinpath(@__DIR__, "julia", "build-wasm", "usr", "include", "utf8proc.h")
 ]
@@ -42,7 +43,7 @@ const CLSugared = Union{CLTypedef, CLElaborated}
 is_ptr(t::CLPointer) = true
 is_ptr(t::CLSugared) = is_ptr(unsugar(t))
 is_ptr(t) = false
-is_any(t::CLPointer) = spelling(pointee_type(t)) in ("jl_value_t", "jl_module_t", "jl_array_t", "jl_function_t")
+is_any(t::CLPointer) = spelling(pointee_type(t)) in ("jl_value_t", "jl_module_t", "jl_array_t", "jl_function_t", "jl_task_t")
 is_any(t) = false
 
 deptr(t::CLPointer) = pointee_type(t)
@@ -293,8 +294,9 @@ $(String(take!(fbuf)))
 struct interpreter_state;
 typedef struct interpreter_state interpreter_state;
 extern jl_value_t *eval_value(jl_value_t *e, interpreter_state *s);
-jl_value_t *eval_foreigncall(const char *target, interpreter_state *s, jl_value_t **args, size_t nargs)
+jl_value_t *eval_foreigncall(jl_sym_t *fname, jl_sym_t *libname, interpreter_state *s, jl_value_t **args, size_t nargs)
 {
+const char *target = jl_symbol_name(fname);
 // jl_value_ptr is special
 if (strcmp(target, "jl_value_ptr") == 0) {
     if (eval_value(args[1], s) == (jl_value_t*)jl_any_type) {
