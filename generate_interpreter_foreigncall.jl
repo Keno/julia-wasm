@@ -43,7 +43,7 @@ const CLSugared = Union{CLTypedef, CLElaborated}
 is_ptr(t::CLPointer) = true
 is_ptr(t::CLSugared) = is_ptr(unsugar(t))
 is_ptr(t) = false
-is_any(t::CLPointer) = spelling(pointee_type(t)) in ("jl_value_t", "jl_module_t", "jl_array_t", "jl_function_t", "jl_task_t")
+is_any(t::CLPointer) = spelling(pointee_type(t)) in ("jl_value_t", "jl_module_t", "jl_array_t", "jl_function_t", "jl_task_t", "jl_weakref_t")
 is_any(t) = false
 
 deptr(t::CLPointer) = pointee_type(t)
