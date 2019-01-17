@@ -23,7 +23,6 @@ override JULIA_THREADS=0
 override USE_SYSTEM_BLAS=1
 override USE_SYSTEM_LAPACK=1
 override USE_SYSTEM_LIBM=1
-override USE_SYSTEM_DSFMT=1
 override USE_SYSTEM_SUITESPARSE=1
 override LLVM_CONFIG_HOST=${DIR}/julia/build-native/usr/tools/llvm-config
 override USE_CROSS_FLISP=1
