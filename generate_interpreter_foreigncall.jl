@@ -24,7 +24,8 @@ JULIA_SRCS = [
     joinpath(LIBCLANG_INCLUDE, "gf.c"),
     joinpath(LIBCLANG_INCLUDE, "task.c"),
     joinpath(@__DIR__, "julia", "build-wasm", "usr", "include", "pcre2.h"),
-    joinpath(@__DIR__, "julia", "build-wasm", "usr", "include", "utf8proc.h")
+    joinpath(@__DIR__, "julia", "build-wasm", "usr", "include", "utf8proc.h"),
+    joinpath(@__DIR__, "julia", "build-wasm", "usr", "include", "dSFMT.h")
 ]
 
 EXTERNAL_SRCS = [

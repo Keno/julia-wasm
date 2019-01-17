@@ -23,7 +23,6 @@ override JULIA_THREADS=0
 override USE_SYSTEM_BLAS=1
 override USE_SYSTEM_LAPACK=1
 override USE_SYSTEM_LIBM=1
-override USE_SYSTEM_DSFMT=1
 override USE_SYSTEM_SUITESPARSE=1
 override LLVM_CONFIG_HOST=${DIR}/julia/build-native/usr/tools/llvm-config
 override USE_CROSS_FLISP=1
@@ -36,5 +35,5 @@ override LLVM_BB_URL_BASE := https://github.com/tshort/LLVMBuilder/releases/down
 override LLVM_BB_REL = 0-wasm
 EOF
 (cd build-native && make -j20)
-(cd build-wasm && make -C deps BUILDING_HOST_TOOLS=1 install-libuv install-utf8proc)
+(cd build-wasm && make -C deps BUILDING_HOST_TOOLS=1 install-libuv install-utf8proc install-dsfmt)
 (cd build-wasm && make -j20 julia-ui-release)
