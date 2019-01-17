@@ -43,7 +43,7 @@ const CLSugared = Union{CLTypedef, CLElaborated}
 is_ptr(t::CLPointer) = true
 is_ptr(t::CLSugared) = is_ptr(unsugar(t))
 is_ptr(t) = false
-is_any(t::CLPointer) = spelling(pointee_type(t)) in ("jl_value_t", "jl_module_t", "jl_array_t", "jl_function_t", "jl_task_t", "jl_weakref_t", "jl_sym_t", "jl_methtable_t", "jl_tupletype_t", "jl_datatype_t", "jl_method_t", "jl_svec_t")
+is_any(t::CLPointer) = spelling(pointee_type(t)) in ("jl_value_t", "jl_module_t", "jl_array_t", "jl_function_t", "jl_task_t", "jl_weakref_t", "jl_sym_t", "jl_methtable_t", "jl_tupletype_t", "jl_datatype_t", "jl_method_t", "jl_svec_t", "jl_code_info_t", "jl_method_instance_t", "jl_expr_t", "jl_task_t", "jl_typemap_entry_t", "jl_typemap_level_t", "jl_ssavalue_t", "jl_tvar_t", "jl_unionall_t", "jl_typename_t", "jl_uniontype_t")
 is_any(t) = false
 
 deptr(t::CLPointer) = pointee_type(t)
@@ -195,7 +195,10 @@ function generate_case(decls, out, fdecl)
         elseif rk == :Int8 || rk == :Bool
             println(out, "\treturn jl_box_int8(result);")
         elseif rk == :UInt8 || rk == :Cuchar
-            println(out, "\treturn jl_box_uint8(result);")
+            println(out, """
+            \tjl_datatype_t *rt = (jl_datatype_t*)eval_value(args[1], s);
+            \treturn (rt == jl_bool_type) ? jl_box_bool(result) : jl_box_uint8(result);
+            """)
         elseif rk == :Int16
             println(out, "\treturn jl_box_int16(result);")
         elseif rk == :UInt16
