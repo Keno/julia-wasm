@@ -30,6 +30,7 @@ JULIA_SRCS = [
 EXTERNAL_SRCS = [
     joinpath(@__DIR__, "julia", "build-wasm", "usr", "include", "gmp.h"),
     joinpath(@__DIR__, "julia", "build-wasm", "usr", "include", "mpfr.h"),
+    joinpath(@__DIR__, "julia", "build-wasm", "usr", "include", "dSFMT.h")
 ]
 
 const libc_symbols = ["memchr", "strlen", "memcpy", "memmove", "memset", "getenv", "setenv", "srand", "memcmp"]
@@ -133,6 +134,7 @@ function generate_case(decls, out, fdecl)
     end
     callout = IOBuffer()
     print(callout, spelling(fdecl), "(")
+    println(stderr, spelling(fdecl))
     if length(fargs) == 0
         print(callout, ");\n")
     else
@@ -176,7 +178,12 @@ function generate_case(decls, out, fdecl)
             else
                 error("Unmapped argument type $tk in `$(spelling(fdecl))`")
             end
-            print(callout, "\t\t\t(", spelling(at), ") ", ub)
+            if isa(at, CLIncompleteArray)
+                cast = string(spelling(element_type(at)), " *")
+            else
+                cast = spelling(at)
+            end
+            print(callout, "\t\t\t(", cast, ") ", ub)
             i == length(fargs) || print(callout, ",")
             print(callout, "\n")
         end
@@ -261,10 +268,16 @@ function process_tu(fbuf, obuf, tu, only_exported = true)
         isa(f, CLFunctionDecl) || continue
         clds = children(f)
         fname = spelling(f)
-        if only_exported && !(fname in libc_symbols)
-            idx = findfirst(x->isa(x, CLVisibilityAttr), clds)
-            idx === nothing && continue
-            spelling(clds[idx]) != "default" && continue
+        if only_exported
+            if !(fname in libc_symbols)
+                idx = findfirst(x->isa(x, CLVisibilityAttr), clds)
+                idx === nothing && continue
+                spelling(clds[idx]) != "default" && continue
+            end
+        else
+            # Exclude anything in system headers
+            loc = Clang.location(f)
+            Clang.clang_Location_isInSystemHeader(loc) != 0 && continue
         end
         (fname in blacklist_decl) && continue
         if fname in fnames
