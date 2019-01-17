@@ -134,7 +134,6 @@ function generate_case(decls, out, fdecl)
     end
     callout = IOBuffer()
     print(callout, spelling(fdecl), "(")
-    println(stderr, spelling(fdecl))
     if length(fargs) == 0
         print(callout, ");\n")
     else
@@ -204,6 +203,7 @@ function generate_case(decls, out, fdecl)
         elseif rk == :UInt8 || rk == :Cuchar
             println(out, """
             \tjl_datatype_t *rt = (jl_datatype_t*)eval_value(args[1], s);
+            \rrt = instantiate_foreigncall_rt(rt, s);
             \treturn (rt == jl_bool_type) ? jl_box_bool(result) : jl_box_uint8(result);
             """)
         elseif rk == :Int16
@@ -220,7 +220,9 @@ function generate_case(decls, out, fdecl)
             # Return this according to the pointer type chosen on the julia side
             println(out, """
             \tjl_ptls_t ptls = jl_get_ptls_states();
-            \tjl_value_t *v = jl_gc_alloc(ptls, sizeof(void*), eval_value(args[1], s));
+            \tjl_datatype_t *rt = eval_value(args[1], s);
+            \trt = instantiate_foreigncall_rt(rt, s);
+            \tjl_value_t *v = jl_gc_alloc(ptls, sizeof(void*), rt);
             \t*(void**)jl_data_ptr(v) = (void*)result;
             \treturn v;
             """)
@@ -228,7 +230,9 @@ function generate_case(decls, out, fdecl)
             # Return this according to the pointer type chosen on the julia side
             println(out, """
             \tjl_ptls_t ptls = jl_get_ptls_states();
-            \tjl_value_t *v = jl_gc_alloc(ptls, sizeof($rk), eval_value(args[1], s));
+            \tjl_datatype_t *rt = eval_value(args[1], s);
+            \trt = instantiate_foreigncall_rt(rt, s);
+            \tjl_value_t *v = jl_gc_alloc(ptls, sizeof($rk), rt);
             \tmemcpy(jl_data_ptr(v), &result, sizeof($rk));
             \treturn v;
             """)
@@ -310,6 +314,7 @@ $(String(take!(fbuf)))
 struct interpreter_state;
 typedef struct interpreter_state interpreter_state;
 extern jl_value_t *eval_value(jl_value_t *e, interpreter_state *s);
+extern jl_datatype_t *instantiate_foreigncall_rt(jl_datatype_t *, interpreter_state *s);
 jl_value_t *eval_foreigncall(jl_sym_t *fname, jl_sym_t *libname, interpreter_state *s, jl_value_t **args, size_t nargs)
 {
 const char *target = jl_symbol_name(fname);
