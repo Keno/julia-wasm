@@ -321,7 +321,7 @@ var languagePluginLoader = new Promise((resolve, reject) => {
 
       render : (val) => {
         // Get repr
-        input = "repr";
+        input = "x->(buf = IOBuffer(); show(buf, MIME\"text/plain\"(), x); String(take!(buf)))";
         ptr = Module._malloc(input.length + 1);
         Module.stringToUTF8(input, ptr, input.length + 1);
         repr = Module._jl_eval_string(ptr);
