@@ -6,7 +6,7 @@ var languagePluginLoader = new Promise((resolve, reject) => {
   // This is filled in by the Makefile to be either a local file or the
   // deployed location. TODO: This should be done in a less hacky
   // way.
-  const baseURL = 'http://' + window.location.host + '/website/';
+  const baseURL = 'https://keno.github.io/julia-wasm/website/';
 
   ////////////////////////////////////////////////////////////
   // Package loading
