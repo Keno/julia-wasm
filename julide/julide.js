@@ -320,6 +320,30 @@ var languagePluginLoader = new Promise((resolve, reject) => {
       },
 
       render : (val) => {
+        the_val = Module.JlProxy.getPtr(val);
+        if (window.Plotly !== undefined) {
+            input = 'function f(x); showable(MIME"application/vnd.plotly.v1+json"(), x); end; f'
+            ptr = Module._malloc(input.length + 1);
+            Module.stringToUTF8(input, ptr, input.length + 1);
+            plotly_showable = Module._jl_eval_string(ptr);        
+            
+            the_val_showable = Module._jl_call1(plotly_showable, the_val)
+
+            if (Module._jl_unbox_bool(the_val_showable) != 0) {
+                // Get to_plotly
+                input = "x->(buf = IOBuffer(); show(buf, MIME\"application/vnd.plotly.v1+json\"(), x); String(take!(buf)))"
+                ptr = Module._malloc(input.length + 1);
+                Module.stringToUTF8(input, ptr, input.length + 1);
+                to_plotly = Module._jl_eval_string(ptr);
+
+                str = Module._jl_call1(to_plotly, the_val)
+                output = Pointer_stringify(Module._jl_string_ptr(str));
+                let div = document.createElement('div');
+                var figure = JSON.parse(output);
+                Plotly.newPlot(div, figure.data, figure.layout)
+                return div;
+            }
+        }
         // Get repr
         input = "x->(buf = IOBuffer(); show(buf, MIME\"text/plain\"(), x); String(take!(buf)))";
         ptr = Module._malloc(input.length + 1);
@@ -338,7 +362,6 @@ var languagePluginLoader = new Promise((resolve, reject) => {
         Module.stringToUTF8(input, ptr, input.length + 1);
         to_html = Module._jl_eval_string(ptr);
 
-        the_val = Module.JlProxy.getPtr(val);
         the_val_showable = Module._jl_call1(html_showable, the_val)
 
         let div = document.createElement('div');
