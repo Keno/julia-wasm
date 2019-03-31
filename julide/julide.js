@@ -325,8 +325,8 @@ var languagePluginLoader = new Promise((resolve, reject) => {
             input = 'function f(x); showable(MIME"application/vnd.plotly.v1+json"(), x); end; f'
             ptr = Module._malloc(input.length + 1);
             Module.stringToUTF8(input, ptr, input.length + 1);
-            plotly_showable = Module._jl_eval_string(ptr);        
-            
+            plotly_showable = Module._jl_eval_string(ptr);
+
             the_val_showable = Module._jl_call1(plotly_showable, the_val)
 
             if (Module._jl_unbox_bool(the_val_showable) != 0) {
@@ -380,7 +380,7 @@ var languagePluginLoader = new Promise((resolve, reject) => {
             pre.textContent = output;
             div.appendChild(pre);
         }
-        return div;
+        return div.outerHTML;
       }
     });
   }
