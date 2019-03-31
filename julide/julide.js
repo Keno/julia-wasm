@@ -341,7 +341,7 @@ var languagePluginLoader = new Promise((resolve, reject) => {
                 let div = document.createElement('div');
                 var figure = JSON.parse(output);
                 Plotly.newPlot(div, figure.data, figure.layout)
-                return div;
+                return div.outerHTML;
             }
         }
         // Get repr
