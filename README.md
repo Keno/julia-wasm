@@ -13,7 +13,7 @@ There's two scripts in this repo:
 
 There's two ways to try out the current state of the wasm port without building anything yourself.
 1. An instance of the Web REPL hosted at https://keno.github.io/julia-wasm/website/repl.htm
-2. Using the iodide IDE plugin (see https://extremely-alpha.iodide.io/notebooks/225/ to get started).
+2. Using the iodide IDE plugin (see https://alpha.iodide.io/notebooks/225/ to get started).
 
 Both use a pre-built version that it regularly pushed to this repo. However, to save space it may
 be a few days out of date. Please note that this is an extremely early alpha and many things are likely
