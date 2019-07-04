@@ -27,7 +27,7 @@ JULIA_SRCS = [
     joinpath(@__DIR__, "julia", "build-wasm", "usr", "include", "utf8proc.h")
 ]
 
-EXTERNAL_SRCS = [
+EXTERNAL_SRCS = String[
     joinpath(@__DIR__, "julia", "build-wasm", "usr", "include", "gmp.h"),
     joinpath(@__DIR__, "julia", "build-wasm", "usr", "include", "mpfr.h"),
     joinpath(@__DIR__, "julia", "build-wasm", "usr", "include", "dSFMT.h")
@@ -44,7 +44,7 @@ const CLSugared = Union{CLTypedef, CLElaborated}
 is_ptr(t::CLPointer) = true
 is_ptr(t::CLSugared) = is_ptr(unsugar(t))
 is_ptr(t) = false
-is_any(t::CLPointer) = spelling(pointee_type(t)) in ("jl_value_t", "jl_module_t", "jl_array_t", "jl_function_t", "jl_task_t", "jl_weakref_t", "jl_sym_t", "jl_methtable_t", "jl_tupletype_t", "jl_datatype_t", "jl_method_t", "jl_svec_t", "jl_code_info_t", "jl_method_instance_t", "jl_expr_t", "jl_task_t", "jl_typemap_entry_t", "jl_typemap_level_t", "jl_ssavalue_t", "jl_tvar_t", "jl_unionall_t", "jl_typename_t", "jl_uniontype_t")
+is_any(t::CLPointer) = spelling(pointee_type(t)) in ("jl_value_t", "jl_module_t", "jl_array_t", "jl_function_t", "jl_task_t", "jl_weakref_t", "jl_sym_t", "jl_methtable_t", "jl_tupletype_t", "jl_datatype_t", "jl_method_t", "jl_svec_t", "jl_code_info_t", "jl_method_instance_t", "jl_expr_t", "jl_task_t", "jl_typemap_entry_t", "jl_typemap_level_t", "jl_ssavalue_t", "jl_tvar_t", "jl_unionall_t", "jl_typename_t", "jl_uniontype_t", "jl_code_instance_t")
 is_any(t) = false
 
 deptr(t::CLPointer) = pointee_type(t)
@@ -114,11 +114,12 @@ const blacklist_decl = Set{String}(("jl_gc_alloc", "uint64_t", "ios_t", "int64_t
 "htable_t"))
 
 function generate_case(decls, out, fdecl)
-    all_types = [return_type(fdecl), (argtype(type(fdecl), i) for i = 0:(length(function_args(fdecl))-1))...]
+    all_types = [return_type(fdecl), (convert(CLType, argtype(type(fdecl).type, UInt(i))) for i = 0:(length(function_args(fdecl))-1))...]
     declare_types(decls, all_types)
     fname = spelling(fdecl)
     fargs = function_args(fdecl)
     if !(fname in blacklist_decl)
+        isa(type(fdecl), CLUnexposed) && println(decls, "#undef ", spelling(fdecl))
         if length(fargs) == 0
             print(decls, "extern ", spelling(return_type(fdecl)), " ", spelling(fdecl), "(void);\n")
         else
@@ -139,7 +140,7 @@ function generate_case(decls, out, fdecl)
     else
         print(callout, "\n")
         for (i, arg) in enumerate(fargs)
-            at = argtype(type(fdecl), i-1)
+            at::CLType = argtype(type(fdecl).type, UInt(i-1))
             tk = clang2julia(unsugar(at))
             arg = "eval_value(args[$(4+i)], s)"
             if is_any(at)
@@ -287,9 +288,9 @@ function process_tu(fbuf, obuf, tu, only_exported = true)
         if fname in fnames
             continue
         end
-        isa(type(f), CLFunctionProto) || continue
+        isa(type(f), Union{CLFunctionProto, CLUnexposed}) || continue
         if any(0:length(function_args(f))-1) do i
-                at = argtype(type(f), i)
+                at::CLType = argtype(type(f).type, UInt(i))
                 return spelling(at) == "va_list"
             end
                 continue
