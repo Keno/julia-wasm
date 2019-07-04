@@ -16,8 +16,8 @@ EOF
 cat > build-wasm/Make.user <<EOF
 override CC=emcc
 override CXX=emcc
-override AR=/home/keno/llvm-project-build/bin/llvm-ar
-override RANLIB=/home/keno/llvm-project-build/bin/llvm-ranlib
+override AR=llvm-ar
+override RANLIB=llvm-ranlib
 JULIACODEGEN=none
 CFLAGS=--source-map-base http://localhost:8888/ -g4 -s WASM=1 -D__wasm__
 override OS=emscripten
