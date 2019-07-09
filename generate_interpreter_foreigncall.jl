@@ -23,6 +23,7 @@ JULIA_SRCS = [
     joinpath(LIBCLANG_INCLUDE, "jl_antiuv.c"),
     joinpath(LIBCLANG_INCLUDE, "gf.c"),
     joinpath(LIBCLANG_INCLUDE, "task.c"),
+    joinpath(LIBCLANG_INCLUDE, "partr.c"),
     joinpath(@__DIR__, "julia", "build-wasm", "usr", "include", "pcre2.h"),
     joinpath(@__DIR__, "julia", "build-wasm", "usr", "include", "utf8proc.h")
 ]
@@ -30,7 +31,8 @@ JULIA_SRCS = [
 EXTERNAL_SRCS = String[
     joinpath(@__DIR__, "julia", "build-wasm", "usr", "include", "gmp.h"),
     joinpath(@__DIR__, "julia", "build-wasm", "usr", "include", "mpfr.h"),
-    joinpath(@__DIR__, "julia", "build-wasm", "usr", "include", "dSFMT.h")
+    joinpath(@__DIR__, "julia", "build-wasm", "usr", "include", "dSFMT.h"),
+    joinpath(ENV["EMSCRIPTEN"], "system/include/emscripten/emscripten.h")
 ]
 
 const libc_symbols = ["memchr", "strlen", "memcpy", "memmove", "memset", "getenv", "setenv", "srand", "memcmp"]
@@ -44,7 +46,7 @@ const CLSugared = Union{CLTypedef, CLElaborated}
 is_ptr(t::CLPointer) = true
 is_ptr(t::CLSugared) = is_ptr(unsugar(t))
 is_ptr(t) = false
-is_any(t::CLPointer) = spelling(pointee_type(t)) in ("jl_value_t", "jl_module_t", "jl_array_t", "jl_function_t", "jl_task_t", "jl_weakref_t", "jl_sym_t", "jl_methtable_t", "jl_tupletype_t", "jl_datatype_t", "jl_method_t", "jl_svec_t", "jl_code_info_t", "jl_method_instance_t", "jl_expr_t", "jl_task_t", "jl_typemap_entry_t", "jl_typemap_level_t", "jl_ssavalue_t", "jl_tvar_t", "jl_unionall_t", "jl_typename_t", "jl_uniontype_t", "jl_code_instance_t")
+is_any(t::CLPointer) = spelling(pointee_type(t)) in ("jl_value_t", "jl_module_t", "jl_array_t", "jl_function_t", "jl_task_t", "jl_weakref_t", "jl_sym_t", "jl_methtable_t", "jl_tupletype_t", "jl_datatype_t", "jl_method_t", "jl_svec_t", "jl_code_info_t", "jl_method_instance_t", "jl_expr_t", "jl_typemap_entry_t", "jl_typemap_level_t", "jl_ssavalue_t", "jl_tvar_t", "jl_unionall_t", "jl_typename_t", "jl_uniontype_t", "jl_code_instance_t")
 is_any(t) = false
 
 deptr(t::CLPointer) = pointee_type(t)
@@ -111,7 +113,7 @@ end
 declare_types(decls, types) = map(t->declare_type(decls, t), types)
 
 const blacklist_decl = Set{String}(("jl_gc_alloc", "uint64_t", "ios_t", "int64_t", "bufmode_t", "JL_IMAGE_SEARCH", "uint_t", "pcre2_callout_enumerate_8", "pcre2_callout_enumerate_16", "pcre2_callout_enumerate_32", "pcre2_set_callout_8", "pcre2_set_callout_16", "pcre2_set_callout_32",
-"htable_t"))
+"htable_t","emscripten_asm_const_int","emscripten_asm_const_double", "emscripten_asm_const_int_sync_on_main_thread", "emscripten_asm_const_double_sync_on_main_thread","emscripten_asm_const_async_on_main_thread"))
 
 function generate_case(decls, out, fdecl)
     all_types = [return_type(fdecl), (convert(CLType, argtype(type(fdecl).type, UInt(i))) for i = 0:(length(function_args(fdecl))-1))...]
@@ -255,12 +257,12 @@ obuf = IOBuffer()
 ctx = DefaultContext()
 
 jl_tus = parse_headers!(ctx, JULIA_SRCS,
-    args=["-I", joinpath(LIBCLANG_INCLUDE, ".."), "-DJL_DISABLE_LIBUNWIND", "-DJL_DISABLE_LIBUV", "-D__wasm__", "-D_GNU_SOURCE", "-DPCRE2_EXP_DECL=__attribute__ ((visibility(\"default\")))", "-DPCRE2_CODE_UNIT_WIDTH=8"],
+    args=["-I", joinpath(LIBCLANG_INCLUDE, ".."), "-DJL_DISABLE_LIBUNWIND", "-DJL_DISABLE_LIBUV", "-D__wasm__", "-D_GNU_SOURCE", "-DPCRE2_EXP_DECL=__attribute__ ((visibility(\"default\")))", "-DPCRE2_CODE_UNIT_WIDTH=8", "-D__EMSCRIPTEN__"],
     includes=vcat(LIBCLANG_INCLUDE, INCLUDE_DIRS, CLANG_INCLUDE),
 )
 
 ext_tus = parse_headers!(ctx, EXTERNAL_SRCS,
-    args=["-I", joinpath(LIBCLANG_INCLUDE, ".."), "-DJL_DISABLE_LIBUNWIND", "-DJL_DISABLE_LIBUV", "-D__wasm__", "-D_GNU_SOURCE", "-DPCRE2_CODE_UNIT_WIDTH=8"],
+    args=["-I", joinpath(LIBCLANG_INCLUDE, ".."), "-DJL_DISABLE_LIBUNWIND", "-DJL_DISABLE_LIBUV", "-D__wasm__", "-D_GNU_SOURCE", "-DPCRE2_CODE_UNIT_WIDTH=8", "-D__EMSCRIPTEN__"],
     includes=vcat(LIBCLANG_INCLUDE, INCLUDE_DIRS, CLANG_INCLUDE),
 )
 
