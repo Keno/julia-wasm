@@ -42,7 +42,12 @@ var languagePluginLoader = new Promise((resolve, reject) => {
 
   ////////////////////////////////////////////////////////////
   // Loading Pyodide
-  let wasmURL = `${baseURL}hello.wasm`;
+  let fileBaseURL = baseURL;
+  if (baseURL.includes("keno.github.io")) {
+     fileBaseURL = `${fileBaseURL}../../julia-wasm-build/`
+  }
+
+  let wasmURL = `${fileBaseURL}hello.wasm`;
   let Module = {};
   self.Module = Module;
 
@@ -64,7 +69,7 @@ var languagePluginLoader = new Promise((resolve, reject) => {
     return true;
   }
 
-  Module.locateFile = (path) => baseURL + path;
+  Module.locateFile = (path) => fileBaseURL + path;
   Module.postRun = () => {
     Module._jl_initialize();
     input = "Base.load_InteractiveUtils()"
@@ -88,7 +93,7 @@ var languagePluginLoader = new Promise((resolve, reject) => {
   }
 
   let data_script = document.createElement('script');
-  data_script_src = `${baseURL}hello.js`;
+  data_script_src = `${fileBaseURL}hello.js`;
   loadScript(data_script_src, ()=> {
     self.jlodide = {
         runJulia: (input) => {
