@@ -24,7 +24,7 @@
 			path = urlParams.get('wasm')
 		}
 		Module['locateFile'] = function(file, prefix) {
-		    return path.substring(0, path.lastIndexOf("/")) + file;
+		    return path.substring(0, path.lastIndexOf("/")) + '/' + file;
 		}
 	        const script = self.document.createElement('script');
       		script.src = path;
