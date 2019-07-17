@@ -20,16 +20,35 @@ be a few days out of date. Please note that this is an extremely early alpha and
 (and known) to be broken.
 
 # To get started
-First install the emscripten SDK, then
+
+First install the emscripten SDK
 ```
-# Do this every time you start a session
-source ~/emsdk/emsdk_env.sh
-# Do this once
-./build_julia_wasm.sh
-# Do this after you change something on the wasm side
-./rebuild_js.sh
-# Use this to start a web server to serve the website
-# Restart it when it crashes
+# Install emsdk
+git clone https://github.com/emscripten-core/emsdk.git
+cd emsdk
+./emsdk install emscripten-incoming-64bit binaryen-master-64bit
+./emsdk activate emscripten-incoming-64bit binaryen-master-64bit
+```
+Then build and install upstream LLVM
+```
+# Install upstream LLVM
+git clone https://github.com/llvm/llvm-project
+mkdir llvm-build
+cd llvm-build
+cmake -G Ninja -DLLVM_ENABLE_PROJECTS="clang;lld" -DCMAKE_BUILD_TYPE=Release ../llvm-project/llvm
+ninja
+# Add LLVM_ROOT = '<PATH_TO_LLVM_HERE>/llvm-build/bin' to $HOME/.emscripten
+# ADD llvm-build/bin to path
+```
+Finally, you're ready to build julia for wasm
+```
+# Build julia-wasm (do this once - this command may fail at the very end of the build process, that's normal)
+./build-julia-wasm.sh
+ # Do this after you change something on the wasm side
+ ./rebuild_js.sh
+```
+Afterwards you may set up a webserver using:
+```
 emrun --no_browser --port 8888 website/repl.htm &
 ```
 At the moment `Firefox Developer Edition` seems to have the most complete
