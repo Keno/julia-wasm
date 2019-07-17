@@ -43,11 +43,13 @@ var languagePluginLoader = new Promise((resolve, reject) => {
   ////////////////////////////////////////////////////////////
   // Loading Pyodide
   let fileBaseURL = baseURL;
+  let wasmBaseName = 'hello'
   if (baseURL.includes("keno.github.io")) {
      fileBaseURL = `${fileBaseURL}../../julia-wasm-build/`
+     wasmBaseName = 'hello-no-bysyncify' // While we're working out performance issues
   }
 
-  let wasmURL = `${fileBaseURL}hello.wasm`;
+  let wasmURL = `${fileBaseURL}${wasmBaseName}.wasm`;
   let Module = {};
   self.Module = Module;
 
@@ -93,7 +95,7 @@ var languagePluginLoader = new Promise((resolve, reject) => {
   }
 
   let data_script = document.createElement('script');
-  data_script_src = `${fileBaseURL}hello.js`;
+  data_script_src = `${fileBaseURL}${wasmBaseName}.js`;
   loadScript(data_script_src, ()=> {
     self.jlodide = {
         runJulia: (input) => {
