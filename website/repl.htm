@@ -20,6 +20,9 @@
 		//between builds.
 		var urlParams = new URLSearchParams(window.location.search);
 		var path = "hello.js"
+                if (window.location.hostname == "keno.github.io") {
+		    path = "../../julia-wasm-build/hello-no-bysyncify.js"
+		}
 		if (urlParams.has('wasm')) {
 			path = urlParams.get('wasm')
 		}
