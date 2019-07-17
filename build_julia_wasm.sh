@@ -37,6 +37,7 @@ override fPIC=
 USE_BINARYBUILDER_LLVM=0
 BINARYBUILDER_TRIPLET=wasm32-unknown-emscripten
 EOF
-(cd build-native && make -j20)
 (cd build-wasm && make -C deps BUILDING_HOST_TOOLS=1 install-libuv install-utf8proc)
+(cd build-wasm && make -C deps -j20)
+(cd build-native && make -j20)
 (cd build-wasm && make -j20 julia-ui-release)
