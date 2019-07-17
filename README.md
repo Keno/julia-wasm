@@ -44,6 +44,17 @@ Finally, you're ready to build julia for wasm
 ```
 # Build julia-wasm (do this once - this command may fail at the very end of the build process, that's normal)
 ./build-julia-wasm.sh
+```
+This command may fail at the very end with an error like the following:
+```
+    JULIA build-native/usr/lib/julia/sys-o.a
+syntax: incomplete: premature end of inputErrorException("")
+ERROR: LoadError: syntax: incomplete: premature end of input
+Stacktrace:
+ [1] top-level scope at /root/julia-wasm/julia/contrib/generate_precompile.jl:7
+```
+This is expected (we're using a 32bit linux build, but telling it it's wasm to generate a compatible system image, so things are a bit confused). Afterwards, build the wasm build using: 
+```
  # Do this after you change something on the wasm side
  ./rebuild_js.sh
 ```
