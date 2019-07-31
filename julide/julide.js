@@ -8,6 +8,7 @@ var languagePluginLoader = new Promise((resolve, reject) => {
   // way.
   var baseURL = self.languagePluginUrl;
   baseURL = baseURL.substr(0, baseURL.lastIndexOf('/')) + '/';
+  debugger;
 
   function loadScript(url, onload, onerror) {
     if (self.document) { // browser
