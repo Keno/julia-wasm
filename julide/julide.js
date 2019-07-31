@@ -49,7 +49,7 @@ var languagePluginLoader = new Promise((resolve, reject) => {
      fileBaseURL = `${fileBaseURL}../../julia-wasm-build/`
      wasmBaseName = 'hello-no-bysyncify' // While we're working out performance issues
   }
-  var urlParams = new URLSearchParams(self.languagePluginUrl);
+  var urlParams = new URLSearchParams((new URL(self.languagePluginUrl)).search);
   if (urlParams.has('variant')) {
      wasmBaseName = urlParams.get('variant');
   }
