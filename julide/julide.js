@@ -78,6 +78,7 @@ var languagePluginLoader = new Promise((resolve, reject) => {
   }
 
   Module.locateFile = (path) => fileBaseURL + path;
+  Module.preRun = []
   Module.postRun = () => {
     Module._jl_initialize();
     input = "Base.load_InteractiveUtils()"
