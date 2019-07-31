@@ -8,7 +8,6 @@ var languagePluginLoader = new Promise((resolve, reject) => {
   // way.
   var baseURL = self.languagePluginUrl;
   baseURL = baseURL.substr(0, baseURL.lastIndexOf('/')) + '/';
-  debugger;
 
   function loadScript(url, onload, onerror) {
     if (self.document) { // browser
@@ -127,7 +126,7 @@ var languagePluginLoader = new Promise((resolve, reject) => {
 
         render : (val) => {
           the_val = Module.JlProxy.getPtr(val);
-          if (window.Plotly !== undefined) {
+          if (self.Plotly !== undefined) {
               input = 'function f(x); showable(MIME"application/vnd.plotly.v1+json"(), x); end; f'
               ptr = Module._malloc(input.length + 1);
               Module.stringToUTF8(input, ptr, input.length + 1);
@@ -143,7 +142,7 @@ var languagePluginLoader = new Promise((resolve, reject) => {
                   to_plotly = Module._jl_eval_string(ptr);
 
                   str = Module._jl_call1(to_plotly, the_val)
-                  output = Pointer_stringify(Module._jl_string_ptr(str));
+                  output = UTF8ToString(Module._jl_string_ptr(str), 4096);
                   let div = document.createElement('div');
                   var figure = JSON.parse(output);
                   Plotly.newPlot(div, figure.data, figure.layout)
