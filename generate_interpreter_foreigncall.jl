@@ -115,7 +115,7 @@ declare_types(decls, types) = map(t->declare_type(decls, t), types)
 const blacklist_decl = Set{String}(("jl_gc_alloc", "uint64_t", "ios_t", "int64_t", "bufmode_t", "JL_IMAGE_SEARCH", "uint_t", "pcre2_callout_enumerate_8", "pcre2_callout_enumerate_16", "pcre2_callout_enumerate_32", "pcre2_set_callout_8", "pcre2_set_callout_16", "pcre2_set_callout_32",
 "htable_t","emscripten_asm_const_int","emscripten_asm_const_double", "emscripten_asm_const_int_sync_on_main_thread", "emscripten_asm_const_double_sync_on_main_thread","emscripten_asm_const_async_on_main_thread"))
 
-function generate_case(decls, out, fdecl)
+function generate_case(decls, out, out_fptr, fdecl)
     all_types = [return_type(fdecl), (convert(CLType, argtype(type(fdecl).type, UInt(i))) for i = 0:(length(function_args(fdecl))-1))...]
     declare_types(decls, all_types)
     fname = spelling(fdecl)
@@ -128,7 +128,9 @@ function generate_case(decls, out, fdecl)
             print(decls, "extern ", spelling(return_type(fdecl)), " ", name(fdecl), ";\n")
         end
     end
-    println(out, "else if (strcmp(target, \"", spelling(fdecl), "\") == 0) {")
+    for io in (out, out_fptr)
+        println(io, "else if (strcmp(target, \"", spelling(fdecl), "\") == 0) {")
+    end
     ret_type = return_type(fdecl)
     rk = clang2julia(unsugar(ret_type))
     print(out, "\t")
@@ -247,11 +249,13 @@ function generate_case(decls, out, fdecl)
             error("Unmapped return type $(rk) in `$(spelling(fdecl))`")
         end
     end
+    println(out_fptr, "return (void*)&", spelling(fdecl), "; } ")
     print(out, "} ")
 end
 
 fbuf = IOBuffer()
 obuf = IOBuffer()
+obuf_fptr = IOBuffer()
 
 # create a work context
 ctx = DefaultContext()
@@ -270,7 +274,7 @@ ext_tus = parse_headers!(ctx, EXTERNAL_SRCS,
 fnames = Set{String}()
 declared_types = Set{String}()
 
-function process_tu(fbuf, obuf, tu, only_exported = true)
+function process_tu(fbuf, obuf, obuf_fptr, tu, only_exported = true)
     for f in children(getcursor(tu))
         isa(f, CLFunctionDecl) || continue
         clds = children(f)
@@ -297,13 +301,13 @@ function process_tu(fbuf, obuf, tu, only_exported = true)
             end
                 continue
         end
-        generate_case(fbuf, obuf, f)
+        generate_case(fbuf, obuf, obuf_fptr, f)
         push!(fnames, fname)
     end
 end
 
-foreach(x->process_tu(fbuf, obuf, x, true), jl_tus)
-foreach(x->process_tu(fbuf, obuf, x, false), ext_tus)
+foreach(x->process_tu(fbuf, obuf, obuf_fptr, x, true), jl_tus)
+foreach(x->process_tu(fbuf, obuf, obuf_fptr, x, false), ext_tus)
 
 print("""
 // This file was auto-generated. Do not edit.
@@ -343,4 +347,40 @@ if (strcmp(target, "jl_value_ptr") == 0) {
 } $(String(take!(obuf)))
 
 return NULL;
-} """)
+}
+
+# define WRAP(symname) \\
+else if (strcmp(target, #symname) == 0) { \\
+    return (void*)&symname; \\
+}
+
+extern uint32_t __gmp_version;
+extern int32_t __gmp_bits_per_limb;
+#include <stdio.h>
+
+void *get_foreigncall_fptr(const char *target, const char *libname) {
+if (0) {
+} $(String(take!(obuf_fptr)))
+        WRAP(jl_options)
+#ifdef _OS_EMSCRIPTEN_
+        WRAP(__gmp_version)
+        WRAP(__gmp_bits_per_limb)
+        WRAP(__gmpz_clear)
+#endif
+        WRAP(jl_gc_counted_malloc)
+        WRAP(jl_gc_counted_realloc_with_old_size)
+        WRAP(jl_gc_counted_free_with_size)
+        WRAP(jl_n_threads)
+        WRAP(jl_throw_out_of_memory_error)
+        else if (strcmp(target, "jl_uv_stdout") == 0) {
+            return &JL_STDOUT;
+        } else if (strcmp(target, "jl_uv_stderr") == 0) {
+            return &JL_STDERR;
+        }
+
+ printf("%s", target);
+ jl_error("Encountered cglobal not mapped in runtime_intrinsics. For now, you may add it to the list. (Or write a proper solution)\\n");
+
+return NULL;
+}
+""")
