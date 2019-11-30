@@ -9,7 +9,7 @@ jobs:
 
     steps:
     - uses: actions/checkout@v1
-    - run: sudo apt-get -y install ninja
+    - run: sudo apt-get -y install ninja-build
     - uses: actions/cache@v1
       id: llvm-cache
       with:
