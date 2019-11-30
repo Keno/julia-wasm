@@ -1,0 +1,24 @@
+name: CI
+
+on: [push]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v1
+    - name: Build LLVM
+      run: |
+        git clone https://github.com/llvm/llvm-project
+        mkdir llvm-build
+        cd llvm-build
+        cmake -G Ninja -DLLVM_ENABLE_PROJECTS="clang;lld" -DCMAKE_BUILD_TYPE=Release ../llvm-project/llvm
+        ninja
+    - name: Setup emscripten
+      run: |
+        git clone https://github.com/emscripten-core/emsdk.git
+        cd emsdk
+        ./emsdk install emscripten-incoming-64bit binaryen-master-64bit
+        ./emsdk activate emscripten-incoming-64bit binaryen-master-64bit
