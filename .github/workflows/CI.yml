@@ -9,6 +9,7 @@ jobs:
 
     steps:
     - uses: actions/checkout@v1
+    - run: apt -y install ninja
     - uses: actions/cache@v1
       id: llvm-cache
       with:
@@ -31,4 +32,4 @@ jobs:
       run: |
         cd llvm-build
         ninja
-        
+
