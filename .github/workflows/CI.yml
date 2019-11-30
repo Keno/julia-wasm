@@ -50,4 +50,15 @@ jobs:
         cd emsdk
         ./emsdk install emscripten-incoming-64bit binaryen-master-64bit
         ./emsdk activate emscripten-incoming-64bit binaryen-master-64bit
+        echo "LLVM_ROOT = '$(realpath ..)/llvm-build/bin'"" >> $HOME/.emscripten
+    - uses: actions/cache@v1
+      id: julia-cache
+      with:
+        path: julia 
+        key: ${{ runner.os }}
+    - name: Setup Julia WASM
+      if: steps.julia-cache.outputs.cache-hit != 'true'
+      run: bash ./configure_julia_wasm.sh
+    - name: Build WASM
+      run: bash ./configure_julia_wasm.sh
       
