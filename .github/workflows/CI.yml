@@ -9,16 +9,26 @@ jobs:
 
     steps:
     - uses: actions/checkout@v1
-    - name: Build LLVM
+    - uses: actions/cache@v1
+      id: llvm-cache
+      with:
+        path: llvm-project
+    - name: Initialize LLVM
+      if: steps.llvm-cache.outputs.cache-hit != 'true'
       run: |
         git clone https://github.com/llvm/llvm-project
-        mkdir llvm-build
+        mkdir llvm-build || true
         cd llvm-build
         cmake -G Ninja -DLLVM_ENABLE_PROJECTS="clang;lld" -DCMAKE_BUILD_TYPE=Release ../llvm-project/llvm
-        ninja
-    - name: Setup emscripten
+    - name: Update LLVM
+      run: git -C llvm-project pull
+    - uses: actions/cache@v1
+      id: llvm-build-cache
+      with:
+        path: llvm-build
+        key: ${{ runner.os }}
+    - name: Build LLVM
       run: |
-        git clone https://github.com/emscripten-core/emsdk.git
-        cd emsdk
-        ./emsdk install emscripten-incoming-64bit binaryen-master-64bit
-        ./emsdk activate emscripten-incoming-64bit binaryen-master-64bit
+        cd llvm-build
+        ninja
+        
