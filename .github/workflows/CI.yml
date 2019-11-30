@@ -14,6 +14,7 @@ jobs:
       id: llvm-cache
       with:
         path: llvm-project
+        key: ${{ runner.os }}
     - name: Initialize LLVM
       if: steps.llvm-cache.outputs.cache-hit != 'true'
       run: |
