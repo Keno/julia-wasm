@@ -702,6 +702,7 @@ var Module = {
     ptr = Module._malloc(input.length + 1);
     Module.stringToUTF8(input, ptr, input.length + 1);
     Module._jl_eval_string(ptr);
+    Module.initialize_jscall_runtime();
     enable_prompt();
   }]
 };

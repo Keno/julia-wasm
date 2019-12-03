@@ -1,0 +1,64 @@
+name: CI
+
+on: [push]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v1
+    - uses: seanmiddleditch/gha-setup-ninja@master
+    - uses: actions/cache@v1
+      id: llvm-cache
+      with:
+        path: llvm-project
+        key: ${{ runner.os }}
+    - name: Fetch LLVM
+      if: steps.llvm-cache.outputs.cache-hit != 'true'
+      run: git clone https://github.com/llvm/llvm-project
+    - name: Update LLVM
+      run: git -C llvm-project pull
+    - uses: actions/cache@v1
+      id: llvm-build-cache
+      with:
+        path: llvm-build
+        key: ${{ runner.os }}
+    - name: Initialize LLVM
+      if: steps.llvm-build-cache.outputs.cache-hit != 'true'
+      run: |
+        mkdir llvm-build
+        cd llvm-build
+        cmake -G Ninja -DLLVM_ENABLE_PROJECTS="clang;lld" -DCMAKE_BUILD_TYPE=Release ../llvm-project/llvm
+    - name: Build LLVM
+      run: |
+        cd llvm-build
+        ninja
+    - uses: actions/cache@v1
+      id: emsdk-cache
+      with:
+        path: emsdk
+        key: ${{ runner.os }} 
+    - name: Fetch EMSDK
+      if: steps.emsdk-cache.outputs.cache-hit != 'true'
+      run: git clone https://github.com/emscripten-core/emsdk.git
+    - name: Update EMSDK
+      run: git -C emsdk pull
+    - name: Setup EMSDK
+      run: |
+        cd emsdk
+        ./emsdk install emscripten-incoming-64bit binaryen-master-64bit
+        ./emsdk activate emscripten-incoming-64bit binaryen-master-64bit
+        echo "LLVM_ROOT = '$(realpath ..)/llvm-build/bin'" >> $HOME/.emscripten
+    - uses: actions/cache@v1
+      id: julia-cache
+      with:
+        path: julia 
+        key: ${{ runner.os }}
+    - name: Setup Julia WASM
+      if: steps.julia-cache.outputs.cache-hit != 'true'
+      run: bash ./configure_julia_wasm.sh
+    - name: Build WASM
+      run: bash ./build_julia_wasm.sh
+      

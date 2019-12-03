@@ -1,1 +1,4 @@
 julia
+emsdk
+llvm-build
+llvm-project
