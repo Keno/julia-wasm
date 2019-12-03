@@ -69,3 +69,9 @@ After starting the server above, just navigate to `localhost:8888/repl.htm`
 #### Enable WASM GC support integration (Firefox Nightly)
 
 In `about:config` enable `javascript.options.wasm_gc`
+
+#### Enable WASM Reference Types (Chrome Canary)
+
+```
+google-chrome-unstable  --jsflags="--experimental-wasm-anyref"
+```
