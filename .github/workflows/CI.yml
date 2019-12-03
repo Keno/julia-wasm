@@ -60,5 +60,5 @@ jobs:
       if: steps.julia-cache.outputs.cache-hit != 'true'
       run: bash ./configure_julia_wasm.sh
     - name: Build WASM
-      run: bash ./configure_julia_wasm.sh
+      run: bash ./build_julia_wasm.sh
       
