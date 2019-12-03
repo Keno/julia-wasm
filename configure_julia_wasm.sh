@@ -3,7 +3,7 @@ export DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 
 git clone https://github.com/JuliaLang/julia julia
 pushd julia
-git checkout kf/wasm4
+git checkout vc/wasm
 make O=build-native configure
 make O=build-wasm configure
 cat > build-native/Make.user <<EOF

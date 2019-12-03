@@ -3,11 +3,12 @@
 This repo contains various experiments for setting up julia on wasm.
 It's intended for collaboration and issue tracking before things are
 working sufficiently to switch to the appropriate upstream repo:
-There's two scripts in this repo:
- - `build_julia_wasm.sh` which will setup all the directories and build two copies
-   of julia (one natively for cross compiling the system image, one for wasm)
- - `rebuild_js.sh` which will rebuild just the wasm parts and dump it into the website/
-   directory which is a hacked up copy of https://github.com/vtjnash/JuliaWebRepl.jl
+There's three scripts in this repo:
+  - `configure_julia_wasm.sh` which will setup all the directories
+  - `build_julia_wasm.sh` which will build two copies of julia
+    (one natively for cross compiling the system image, one for wasm)
+  - `rebuild_js.sh` which will rebuild just the wasm parts and dump it into the website/
+    directory which is a hacked up copy of https://github.com/vtjnash/JuliaWebRepl.jl
 
 # Try it out
 
@@ -21,30 +22,49 @@ be a few days out of date. Please note that this is an extremely early alpha and
 
 # To get started
 
+## Pre-conditions
+
+1. nodejs
+2. `gcc-multilib` and `g++-multilib`
+
+## Emscripten SDK 
+
 First install the emscripten SDK
-```
+```sh
 # Install emsdk
 git clone https://github.com/emscripten-core/emsdk.git
 cd emsdk
 ./emsdk install emscripten-incoming-64bit binaryen-master-64bit
 ./emsdk activate emscripten-incoming-64bit binaryen-master-64bit
 ```
+
+## Upstream LLVM
+
 Then build and install upstream LLVM
-```
+```sh
 # Install upstream LLVM
 git clone https://github.com/llvm/llvm-project
 mkdir llvm-build
 cd llvm-build
 cmake -G Ninja -DLLVM_ENABLE_PROJECTS="clang;lld" -DCMAKE_BUILD_TYPE=Release ../llvm-project/llvm
 ninja
-# Add LLVM_ROOT = '<PATH_TO_LLVM_HERE>/llvm-build/bin' to $HOME/.emscripten
-# ADD llvm-build/bin to path
 ```
+
+## Setup environment
+
+1. Add `LLVM_ROOT = '<PATH_TO_LLVM_HERE>/llvm-build/bin'` to `$HOME/.emscripten`
+2. Add `llvm-build/bin` to `$PATH`
+
+## Bootstrapped build
+
 Finally, you're ready to build julia for wasm
-```
-# Build julia-wasm (do this once - this command may fail at the very end of the build process, that's normal)
+```sh
+# Do this once
+./configure-julia-wasm.sh
+# this command may fail at the very end of the build process, that's normal
 ./build-julia-wasm.sh
 ```
+
 This command may fail at the very end with an error like the following:
 ```
     JULIA build-native/usr/lib/julia/sys-o.a
