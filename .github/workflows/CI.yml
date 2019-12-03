@@ -50,7 +50,7 @@ jobs:
         cd emsdk
         ./emsdk install emscripten-incoming-64bit binaryen-master-64bit
         ./emsdk activate emscripten-incoming-64bit binaryen-master-64bit
-        echo "LLVM_ROOT = '$(realpath ..)/llvm-build/bin'"" >> $HOME/.emscripten
+        echo "LLVM_ROOT = '$(realpath ..)/llvm-build/bin'" >> $HOME/.emscripten
     - uses: actions/cache@v1
       id: julia-cache
       with:
