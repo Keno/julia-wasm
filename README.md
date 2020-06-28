@@ -1,3 +1,12 @@
+# Try it out!
+
+There's two ways to try out the current state of the wasm port without building anything yourself.
+1. An instance of the Web REPL hosted at https://keno.github.io/julia-wasm/website/repl.htm
+2. Using the iodide IDE plugin (see https://alpha.iodide.io/notebooks/225/ to get started).
+
+Both use a pre-built version. Please note that this is an extremely early alpha and many things are likely
+(and known) to be broken.
+
 # Julia on WASM - Setup instructions
 
 This repo contains various experiments for setting up julia on wasm.
@@ -9,16 +18,6 @@ There's three scripts in this repo:
     (one natively for cross compiling the system image, one for wasm)
   - `rebuild_js.sh` which will rebuild just the wasm parts and dump it into the website/
     directory which is a hacked up copy of https://github.com/vtjnash/JuliaWebRepl.jl
-
-# Try it out
-
-There's two ways to try out the current state of the wasm port without building anything yourself.
-1. An instance of the Web REPL hosted at https://keno.github.io/julia-wasm/website/repl.htm
-2. Using the iodide IDE plugin (see https://alpha.iodide.io/notebooks/225/ to get started).
-
-Both use a pre-built version that it regularly pushed to this repo. However, to save space it may
-be a few days out of date. Please note that this is an extremely early alpha and many things are likely
-(and known) to be broken.
 
 # To get started
 
