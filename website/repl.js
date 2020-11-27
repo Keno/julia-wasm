@@ -67,16 +67,6 @@ var input_history_current = [""]
 var input_history_id = 0
 var input_history_size = 1000
 
-// Fetch items out of local storage if they exist
-if (localStorage.getItem("input_history")) {
-    input_history = JSON.parse(localStorage.getItem("input_history"))
-    input_history_id = input_history.length - 1
-}
-
-if (localStorage.getItem("input_history_current")) {
-    input_history_current = JSON.parse(localStorage.getItem("input_history_current"))
-}
-
 // an array of message handlers
 var message_handlers = []
 
@@ -203,4 +193,9 @@ window.onerror = function (event) {
     Module.setStatus = function (text) {
         if (text) Module.printErr("[post-exception status] " + text)
     }
+}
+
+var path = "https://keno.github.io/julia-wasm-build/hello-no-bysyncify.js"
+Module["locateFile"] = function (file, prefix) {
+    return path.substring(0, path.lastIndexOf("/")) + "/" + file
 }

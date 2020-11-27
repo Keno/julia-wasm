@@ -5,25 +5,8 @@
     <meta charset="utf-8" />
     <title>Julia - A fresh approach to technical computing.</title>
     <link href="favicon.ico" rel="shortcut icon" />
-    <link href="http://fonts.googleapis.com/css?family=Droid+Sans+Mono&v2" rel="stylesheet" type="text/css">
-    <script type="text/javascript" src="localstorage.js"></script>
     <script type="text/javascript" src="repl.js"></script>
-    <script type="text/javascript">
-        // Load script from URL query parameter to easily switch
-        //between builds.
-        var urlParams = new URLSearchParams(window.location.search);
-        var path = "https://keno.github.io/julia-wasm-build/hello-no-bysyncify.js"
-        if (urlParams.has('wasm')) {
-            path = urlParams.get('wasm')
-        }
-        Module['locateFile'] = function (file, prefix) {
-            return path.substring(0, path.lastIndexOf("/")) + '/' + file;
-        }
-        const script = self.document.createElement('script');
-        script.src = path;
-        script.async = true;
-        self.document.head.appendChild(script);
-    </script>
+    <script src="https://keno.github.io/julia-wasm-build/hello-no-bysyncify.js"></script>
 </head>
 
 <body>
