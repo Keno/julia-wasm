@@ -33,8 +33,8 @@ First install the emscripten SDK
 # Install emsdk
 git clone https://github.com/emscripten-core/emsdk.git
 cd emsdk
-./emsdk install emscripten-incoming-64bit binaryen-master-64bit
-./emsdk activate emscripten-incoming-64bit binaryen-master-64bit
+./emsdk install emscripten-main-64bit binaryen-main-64bit
+./emsdk activate emscripten-main-64bit binaryen-main-64bit
 ```
 
 ## Upstream LLVM
