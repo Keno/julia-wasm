@@ -59,9 +59,9 @@ ninja
 Finally, you're ready to build julia for wasm
 ```sh
 # Do this once
-./configure-julia-wasm.sh
+./configure_julia_wasm.sh
 # this command may fail at the very end of the build process, that's normal
-./build-julia-wasm.sh
+./build_julia_wasm.sh
 ```
 
 This command may fail at the very end with an error like the following:
